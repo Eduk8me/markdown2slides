@@ -19,22 +19,17 @@ function processMarkdown(markdownContent) {
   var lines = markdownContent.split('\n');
   var currentSlide = null;
   var notes = '';
+  var title = '';
+  var imgUrl = '';
 
   // Get the height and width of the slide
   var slideWidth = presentation.getPageWidth();
   var slideHeight = presentation.getPageHeight();
 
-
   lines.forEach(function(line) {
-    if (line.startsWith('#')) {
+    if ((line.startsWith('---')) || (line.startsWith('***')) || (line.startsWith('___'))) {
       // Handle previous slide's notes
-      if (currentSlide && notes) {
-        currentSlide.getNotesPage().getSpeakerNotesShape().getText().setText(notes);
-        notes = '';
-      }
-
-      // Create a new slide
-      title=line.substring(1).trim();
+ 
       if (title.length > 0) {
         currentSlide = presentation.appendSlide(SlidesApp.PredefinedLayout.SECTION_HEADER);
         // Insert a text box that spans the entire slide
@@ -54,19 +49,8 @@ function processMarkdown(markdownContent) {
       } else {
         currentSlide = presentation.appendSlide(SlidesApp.PredefinedLayout.BLANK);
       }
-
-      
-
-      // Format the text in the text box
-      //var textStyle = textBox.setContentAlignment(SlidesApp.ContentAlignment.MIDDLE).getText().getTextStyle();
-      //textStyle.setFontSize(36);
-      //textStyle.setFontFamily('Lexend');
-
-      // Bring the text box to front
-    } else if (line.startsWith('![') && currentSlide) {
-      // Extract and insert image
-      var imageUrl = line.substring(line.indexOf('(') + 1, line.lastIndexOf(')'));
-      if (imageUrl) {
+      Logger.log("New Slide ImageURL: " + imageUrl)
+      if (imageUrl != '') {
         try {
         var image = currentSlide.insertImage(imageUrl);
         // Resize and position the image
@@ -83,6 +67,21 @@ function processMarkdown(markdownContent) {
         } 
 
       }
+
+        currentSlide.getNotesPage().getSpeakerNotesShape().getText().setText(notes);
+        notes = '';
+        title = '';
+        imageURL = '';
+
+    }
+
+      if (line.startsWith('#')) {
+        title=line.substring(1).trim();
+      }
+      else if (line.startsWith('![')) {
+      // Extract and insert image
+      imageUrl = line.substring(line.indexOf('(') + 1, line.lastIndexOf(')'));
+      Logger.log("Got ImageURL: " + imageUrl)
     } else {
       notes += line + '\n';
     }
