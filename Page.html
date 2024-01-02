@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <textarea id="markdownInput" rows="15" cols="50"></textarea><br>
+    <button onclick="processMarkdownClient()">Process Markdown</button>
+
+<script>
+  function processMarkdownClient() {
+ 
+    var markdownContent = document.getElementById('markdownInput').value;
+    google.script.run
+      .withSuccessHandler(closeDialog)
+      .processMarkdown(markdownContent);
+  }
+
+  function closeDialog() {
+    // alert("Slides Created!"); // Temporarily for testing
+    google.script.host.close();
+  }
+</script>
+
+  </body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "timeZone": "America/New_York",
+  "dependencies": {
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "addOns": {
+    "common": {
+      "name": "Eduk8me Markdown2Slides",
+      "logoUrl": "https://eduk8.me/wp-content/uploads/2018/04/Eduk8meLogo.png",
+      "layoutProperties": {
+        "primaryColor": "#2766c6",
+        "secondaryColor": "#f5f5f5"
+      },
+      "homepageTrigger": {
+        "runFunction": "onOpen",
+        "enabled": true
+      }
+    },
+    "slides": {
+      "homepageTrigger": {
+        "runFunction": "onOpen"
+      }
+    }
+  },
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/presentations",
+    "https://www.googleapis.com/auth/script.container.ui"
+  ]
+}
