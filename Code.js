@@ -20,7 +20,10 @@ function processMarkdown(markdownContent) {
   var currentSlide = null;
   var notes = '';
   var title = '';
-  var imgUrl = '';
+  var imageUrl = '';
+  var subtitle = '';
+  var titleBox = null;
+  var subtitleBox = null;
 
   // Get the height and width of the slide
   var slideWidth = presentation.getPageWidth();
@@ -28,27 +31,34 @@ function processMarkdown(markdownContent) {
 
   lines.forEach(function(line) {
     if ((line.startsWith('---')) || (line.startsWith('***')) || (line.startsWith('___'))) {
-      // Handle previous slide's notes
- 
+      //Start new slide
       if (title.length > 0) {
-        currentSlide = presentation.appendSlide(SlidesApp.PredefinedLayout.SECTION_HEADER);
-        // Insert a text box that spans the entire slide
-        //var textBox = currentSlide.insertTextBox(title, 20, 0, slideWidth-40, slideHeight);
-        // Set the title text
-        var textBox = currentSlide.getPlaceholder(SlidesApp.PlaceholderType.TITLE);
-        if (textBox) {
-          textBox.asShape().getText().setText(title);
-          textBox.setWidth(slideWidth-36);
-          textBox.setLeft(18);
-          currentBox = textBox;
-          textBox.bringToFront();
-          centerAlignTextInShape(textBox);
+        currentSlide = presentation.appendSlide(SlidesApp.PredefinedLayout.TITLE);
+        var titleBox = currentSlide.getPlaceholder(SlidesApp.PlaceholderType.CENTERED_TITLE);
+        if (titleBox && title.length > 0 ) {
+          titleBox.asShape().getText().setText(title);
+          titleBox.setWidth(slideWidth-36);
+          titleBox.setLeft(18);
+          titleBox.bringToFront();
+          //centerAlignTextInShape(titleBox);
+        } else {
+          Logger.log("No title placeholder found on this layout.");
+        }
+        
+        var subtitleBox = currentSlide.getPlaceholder(SlidesApp.PlaceholderType.SUBTITLE);
+        if (subtitleBox && subtitle.length > 0 ) {
+          subtitleBox.asShape().getText().setText(subtitle);
+          subtitleBox.setWidth(slideWidth-36);
+          subtitleBox.setLeft(18);
+          subtitleBox.bringToFront();
+          //centerAlignTextInShape(subtitleBox);
         } else {
           Logger.log("No title placeholder found on this layout.");
         }
       } else {
         currentSlide = presentation.appendSlide(SlidesApp.PredefinedLayout.BLANK);
       }
+      // Is there an image for the slide?
       Logger.log("New Slide ImageURL: " + imageUrl)
       if (imageUrl != '') {
         try {
@@ -58,7 +68,7 @@ function processMarkdown(markdownContent) {
           Logger.log("No title:" + slideWidth + "X" + slideHeight)
           setBackgroundImage(image,slideWidth,slideHeight);
         } else {
-        resizeAndCropImage(image,slideWidth,slideHeight,currentBox);
+        resizeAndCropImage(image,slideWidth,slideHeight,titleBox,subtitleBox);
         }
         // Send the image to back
         image.sendToBack(); 
@@ -67,30 +77,35 @@ function processMarkdown(markdownContent) {
         } 
 
       }
+      //Add speaker notes
+      currentSlide.getNotesPage().getSpeakerNotesShape().getText().setText(notes);
 
-        currentSlide.getNotesPage().getSpeakerNotesShape().getText().setText(notes);
-        notes = '';
-        title = '';
-        imageURL = '';
+      //Reset everything for next slide
+      notes = '';
+      title = '';
+      subtitle = '';
+      imageUrl = '';
+      titleBox = null;
+      subtitleBox = null;
 
     }
-
-      if (line.startsWith('#')) {
-        title=line.substring(1).trim();
-      }
-      else if (line.startsWith('![')) {
-      // Extract and insert image
-      imageUrl = line.substring(line.indexOf('(') + 1, line.lastIndexOf(')'));
-      Logger.log("Got ImageURL: " + imageUrl)
-    } else {
-      notes += line + '\n';
+    else {
+        if (line.startsWith('##')) {
+          subtitle += line.substring(2).trim() + '\n';
+        }
+        else if (line.startsWith('#')) {
+          title+=line.substring(1).trim() +'\n';
+        }
+        else if (line.startsWith('![')) {
+        // Extract and insert image
+        imageUrl = line.substring(line.indexOf('(') + 1, line.lastIndexOf(')'));
+        Logger.log("Got ImageURL: " + imageUrl)
+        } else {
+          notes += line + '\n';
+        }
     }
   });
 
-  // Handle notes for the last slide
-  if (currentSlide && notes) {
-    currentSlide.getNotesPage().getSpeakerNotesShape().getText().setText(notes);
-  }
 }
 
 function setBackgroundImage(image, slideWidth, slideHeight) {
@@ -117,7 +132,7 @@ function setBackgroundImage(image, slideWidth, slideHeight) {
 }
 
 
-function resizeAndCropImage(image, slideWidth, slideHeight,textBox) {
+function resizeAndCropImage(image, slideWidth, slideHeight,titleBox,subtitleBox) {
   var imageWidth = image.getWidth();
   var imageHeight = image.getHeight();
   var halfWidth = slideWidth / 2;
@@ -137,7 +152,8 @@ function resizeAndCropImage(image, slideWidth, slideHeight,textBox) {
 
     image.setLeft(positionX > 0 ? positionX : 0);
     //Logger.log(textBox)
-    textBox.setWidth(positionX-30);
+    if (titleBox) { titleBox.setWidth(positionX-30); }
+    if (subtitleBox) { subtitleBox.setWidth(positionX-30); }
   } else { // Image is taller than wide
     // Resize image to half the width of the slide
     image.setWidth(halfWidth);
@@ -148,7 +164,8 @@ function resizeAndCropImage(image, slideWidth, slideHeight,textBox) {
 
     image.setLeft(slideWidth - halfWidth);
     image.setTop(positionY > 0 ? positionY : 0);
-    textBox.setWidth(positionX-54);
+    if (titleBox) { titleBox.setWidth(positionX-54); }
+    if (subtitleBox) { subtitleBox.setWidth(positionX-54); }
   }
 }
 
