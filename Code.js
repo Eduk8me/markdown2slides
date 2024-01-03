@@ -24,13 +24,14 @@ function processMarkdown(markdownContent) {
   var subtitle = '';
   var titleBox = null;
   var subtitleBox = null;
+  var first = true;
 
   // Get the height and width of the slide
   var slideWidth = presentation.getPageWidth();
   var slideHeight = presentation.getPageHeight();
 
   lines.forEach(function(line) {
-    if ((line.startsWith('---')) || (line.startsWith('***')) || (line.startsWith('___'))) {
+    if (((line.startsWith('---')) || (line.startsWith('***')) || (line.startsWith('___'))) && !first) {
       //Start new slide
       if (title.length > 0) {
         currentSlide = presentation.appendSlide(SlidesApp.PredefinedLayout.TITLE);
@@ -103,6 +104,7 @@ function processMarkdown(markdownContent) {
         } else {
           notes += line + '\n';
         }
+        first = false;
     }
   });
 
