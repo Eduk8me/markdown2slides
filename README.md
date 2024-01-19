@@ -4,4 +4,4 @@ Here is my little script that will create a set of slides from Markdown. It's no
 
 # For Development
 
-I set up [clasp](https://developers.google.com/apps-script/guides/clasp) to make it easier to use my own editor instead of the web based editor. It is a Node.js app. Once it's set up you can use `clasp pull` to get the script and `clasp push` to push the updates.
+I set up [clasp](https://developers.google.com/apps-script/guides/clasp) to make it easier to use my own editor instead of the web based editor. It is a Node.js app. Once it's set up you can use `clasp pull` to get the script and `clasp push` to push the updates. You can also push/pull individual files: `clasp push Code.js`
